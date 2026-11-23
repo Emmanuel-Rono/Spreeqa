@@ -8,7 +8,8 @@ class Product_Page:
     
     #1.Open Products page
     def open_products_page(self):
-        start_chrome(self.url, headless= True)
+        go_to(self.url)
+            
         
     # Verify that page is open
     def verify_products_page_opened(self):
