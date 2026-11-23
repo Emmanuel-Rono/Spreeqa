@@ -1,14 +1,14 @@
-# SPRREQA
+# Spreeqa
 
-SPRREQA tests the Spree demo store using Python, pytest, Selenium, and Helium. It covers signup, login, product browsing, adding items to the cart, and opening checkout. GitHub Actions runs tests and saves reports.
+Spreeqa tests the Spree demo store using Python, pytest, Selenium, and Helium. It covers signup, login, product browsing, adding items to the cart, and opening checkout. GitHub Actions runs tests and saves reports.
 
 ## Install
 
 Install Python, Git, and Google Chrome. In Windows PowerShell, run:
 
 ```powershell
-git clone https://github.com/Emmanuel-Rono/SPRREQA.git
-cd SPRREQA
+git clone https://github.com/Emmanuel-Rono/Spreeqa.git
+cd Spreeqa
 python -m venv venv
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
