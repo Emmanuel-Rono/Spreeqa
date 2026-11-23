@@ -12,7 +12,7 @@ class LoginPage():
         self.url = "https://demo.spreecommerce.org/us/en/account"
                 
     def open_login_page(self):
-        start_chrome(self.url)
+        start_chrome(self.url, headless= True)
     
     def enter_login_details(self):
         #Login logic

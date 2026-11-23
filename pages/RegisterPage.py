@@ -8,7 +8,7 @@ class RegisterPage():
         self.url ="https://demo.spreecommerce.org/us/en/account/register"
          
     def open_url(self):
-        start_chrome(self.url)
+        start_chrome(self.url, headless=True)
         
     #def open_Signup_page(self):
            #click("Use email") 
