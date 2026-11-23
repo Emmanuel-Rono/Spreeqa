@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 15
 
     env:
-      HEADLESS: "true"
+      HEADLESS: "false"
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 
@@ -46,8 +46,13 @@ jobs:
       - name: Check Chrome
         run: google-chrome --version
 
+      - name: Install virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth
+
       - name: Run tests
-        run: python -m pytest tests/ -v --junitxml=reports/results.xml
+        run: xvfb-run -a python -m pytest tests/ -v --junitxml=reports/results.xml
 
       # Save the report even when a test fails.
       - name: Upload test report

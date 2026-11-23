@@ -23,7 +23,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 @pytest.fixture(autouse=True)
 def browser(request):
-    headless = os.getenv("HEADLESS", "false").lower() == "true"
+    headless = os.getenv("HEADLESS", "false").lower() == "false"
     start_chrome(headless=headless)
     get_driver().set_window_size(1440, 1000)
 
