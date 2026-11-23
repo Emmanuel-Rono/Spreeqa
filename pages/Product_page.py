@@ -10,7 +10,6 @@ class Product_Page:
     def open_products_page(self):
         go_to(self.url)
             
-        
     # Verify that page is open
     def verify_products_page_opened(self):
         message_locator= Text("Sort")
@@ -18,9 +17,7 @@ class Product_Page:
         actual_text =  message_locator. web_element.text
         return actual_text
     #2.Verify that sort is available
-    
-    #2.Click a product
-    
+
     # Get all product links
     PRODUCT_LINK_SELECTOR = ".group a[href*='/products/']"
     
@@ -75,20 +72,13 @@ class Product_Page:
         return actual_text
     
     #8.Click Proced to checkout
-    
     def checkout(self):
         click("Proceed to Checkout")
         wait_until(Text("Pay Now").exists, timeout_secs= 10)
         
-        
-        
     #9.Check Checkou page is visible.
-    
     def Check_if_checkout_if_available(self):
         message_locator = Text("Pay Now")
         wait_until(message_locator.exists, timeout_secs= 10)
         actual_text = message_locator.web_element.text
         return actual_text
-        
-
- 
