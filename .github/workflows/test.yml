@@ -64,6 +64,10 @@ jobs:
       TEST_PRODUCT_SLUG: ${{ vars.TEST_PRODUCT_SLUG }}
       TEST_PRODUCT_OPTIONS: ${{ vars.TEST_PRODUCT_OPTIONS || '[]' }}
       STRIPE_PAYMENT_METHOD: ${{ vars.STRIPE_PAYMENT_METHOD || 'Credit Card' }}
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      TEST_EMPTY_USER_EMAIL: ${{ secrets.TEST_EMPTY_USER_EMAIL }}
+      TEST_EMPTY_USER_PASSWORD: ${{ secrets.TEST_EMPTY_USER_PASSWORD }}
 
     steps:
       - name: Download repository
@@ -80,11 +84,22 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Check product fixture is configured
+      - name: Check test data is configured
         shell: bash
         run: |
           if [[ -z "$TEST_PRODUCT_SLUG" ]]; then
             echo "::error::Set repository variable TEST_PRODUCT_SLUG to a stocked test product."
+            exit 1
+          fi
+
+          for key in TEST_USER_EMAIL TEST_USER_PASSWORD TEST_EMPTY_USER_EMAIL TEST_EMPTY_USER_PASSWORD; do
+            if [[ -z "${!key}" ]]; then
+              echo "::error::Set repository secret $key to an existing test customer credential."
+              exit 1
+            fi
+          done
+          if [[ "${TEST_USER_EMAIL,,}" == "${TEST_EMPTY_USER_EMAIL,,}" ]]; then
+            echo "::error::Use a separate customer with no orders for TEST_EMPTY_USER_EMAIL."
             exit 1
           fi
 

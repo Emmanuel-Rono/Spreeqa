@@ -35,7 +35,14 @@ Edit `.env`: set `BASE_URL` to the running storefront (including `/us/en`) and
 `TEST_PRODUCT_SLUG` to a known stocked USD product. For a chosen variant, set
 `TEST_PRODUCT_OPTIONS` to its option labels, for example `["Red", "M"]`.
 Use a stable price, no automatic discount, and stock of at least two units.
-Accounts are generated automatically. No personal login is required.
+Create two test customers once through your local storefront. Set `TEST_USER_EMAIL`
+and `TEST_USER_PASSWORD` for login and purchase tests. Set `TEST_EMPTY_USER_EMAIL`
+and `TEST_EMPTY_USER_PASSWORD` for a separate customer with no orders.
+Only signup tests generate new customer details and register them.
+
+User steps are visible in each test. The `browser` fixture starts Chrome, saves
+failure screenshots, and closes Chrome; it does not register or log in a customer,
+choose a product, or fill a cart. Tests run independently with a new browser session.
 
 Keep `.env` private. Tests create customers, carts and (when enabled) orders;
 use a store/database reserved for testing.
@@ -116,7 +123,9 @@ JUnit XML is produced by the commands above. Reports are gitignored.
 Every push/PR runs helper checks and browser-test discovery. Browser execution
 also runs when repository variable `STOREFRONT_URL` points to a test store reachable
 by the GitHub runner. Set `TEST_PRODUCT_SLUG` and optionally `TEST_PRODUCT_OPTIONS`
-as repository variables too. A manual run can supply the storefront URL and enable
+as repository variables too. Add `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`,
+`TEST_EMPTY_USER_EMAIL`, and `TEST_EMPTY_USER_PASSWORD` as repository secrets.
+A manual run can supply the storefront URL and enable
 payment coverage. Results and report downloads appear in the Actions tab.
 
 Without a reachable configured store, the browser job is **not run**. A passing
