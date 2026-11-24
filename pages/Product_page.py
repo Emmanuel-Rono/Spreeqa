@@ -1,84 +1,43 @@
-
+import json
 import os
-# Before
-from helium import go_to, start_chrome, write, click, Text, S, find_all, wait_until, kill_browser
-class Product_Page:
-    def __init__(self):
-        self.url = "https://demo.spreecommerce.org/us/en/products"
-    
-    #1.Open Products page
-    def open_products_page(self):
-        go_to(self.url)
-            
-    # Verify that page is open
-    def verify_products_page_opened(self):
-        message_locator= Text("Sort")
-        wait_until(message_locator.exists, timeout_secs=10)
-        actual_text =  message_locator. web_element.text
-        return actual_text
-    #2.Verify that sort is available
+from urllib.parse import quote, urlsplit
 
-    # Get all product links
-    PRODUCT_LINK_SELECTOR = ".group a[href*='/products/']"
-    
-    def get_all_product_elements(self):
-        links = find_all(S(self.PRODUCT_LINK_SELECTOR))
-        if not links:
-            raise RuntimeError(f"No products found")
-        return links
-         
-    def click_a_product(self):
-        product_links = self.get_all_product_elements()
-        click(product_links[0])
-        wait_until(Text("ADD TO CART").exists, timeout_secs=10)
-    
-    #Check that product details are displayed
-    
-    def check_if_product_page_opens(self):
-        message_locator = Text("Description")
-        wait_until(message_locator.exists,timeout_secs=10)
-        actual_message = message_locator.web_element.text
-        return actual_message
-    
-    #3.Add to cart
-    
-    def add_product_to_cart(self):
-        click("add to cart")
-        wait_until(Text("View Cart").exists, timeout_secs=10)
-    #5.Check if cart appears as slideing window
-    
-    def check_if_product_was_added_to_cart (self):
-        message_locator = Text("Checkout")
-        wait_until(message_locator.exists, timeout_secs= 10)
-        actual_text = message_locator.web_element.text
-        return actual_text
-    #6.View Cart
-    
-    def go_to_Cart(self):
+from helium import Button, S, Text, click, find_all, get_driver, go_to, wait_until
+
+from core.data import Product, usd_amount
+
+
+class ProductPage:
+    def __init__(self):
+        self.url = os.getenv("BASE_URL", "http://localhost:3001/us/en").rstrip("/") + "/products"
+        self.timeout = int(os.getenv("WAIT_TIMEOUT", "30"))
+
+    def open_product(self, slug):
+        go_to(self.url + "/" + quote(slug, safe=""))
+        wait_until(Button("Add to Cart").exists, timeout_secs=self.timeout)
+
+    def choose_options(self, values):
+        for value in values:
+            color = S("main button[title={}]".format(json.dumps(value, ensure_ascii=False)))
+            if color.exists():
+                click(color)
+            else:
+                click(Button(value))
+        wait_until(Button("Add to Cart").is_enabled, timeout_secs=self.timeout)
+
+    def snapshot(self):
+        name = S("main h1").web_element.text.strip()
+        price = S("main h1 ~ div > span.text-3xl").web_element.text
+        sku = S("main dl > div:first-child dd").web_element.text.strip()
+        options = find_all(S("main dl > div:nth-child(2) dd"))
+        slug = urlsplit(get_driver().current_url).path.rstrip("/").split("/")[-1]
+        return Product(name, slug, sku, options[0].web_element.text.strip() if options else "",
+                       usd_amount(price), "USD")
+
+    def add_to_cart(self, product):
+        click("Add to Cart")
+        wait_until(S("[role='dialog'] a[href$='/cart']").exists, timeout_secs=self.timeout)
+
+    def open_cart(self):
         click("View Cart")
-        wait_until(Text("Shopping Cart").exists, timeout_secs=10)
-        
-    def confirm_view_cart_opened(self):
-        message_locator = Text("Shopping Cart")
-        wait_until(message_locator.exists, timeout_secs= 10)
-        actual_text = message_locator.web_element.text
-        return actual_text
-        
-    #7.COnfirm product is available
-    def confirm_if_product_is_Available(self):
-        message_locator = Text("Proceed to Checkout")
-        wait_until(message_locator.exists, timeout_secs= 10)
-        actual_text = message_locator.web_element.text
-        return actual_text
-    
-    #8.Click Proced to checkout
-    def checkout(self):
-        click("Proceed to Checkout")
-        wait_until(Text("Pay Now").exists, timeout_secs= 10)
-        
-    #9.Check Checkou page is visible.
-    def Check_if_checkout_if_available(self):
-        message_locator = Text("Pay Now")
-        wait_until(message_locator.exists, timeout_secs= 10)
-        actual_text = message_locator.web_element.text
-        return actual_text
+        wait_until(Text("Shopping Cart").exists, timeout_secs=self.timeout)

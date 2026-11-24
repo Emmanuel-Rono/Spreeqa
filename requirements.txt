@@ -1,5 +1,5 @@
-helium
-pytest
-selenium
-python-dotenv
-Faker
+helium==7.0.4
+pytest==8.3.5
+selenium==4.27.1
+python-dotenv==1.0.1
+Faker==35.2.2

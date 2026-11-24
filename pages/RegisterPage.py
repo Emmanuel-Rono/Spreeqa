@@ -1,39 +1,35 @@
 import os
-from helium import click, go_to, start_chrome, write, Text, S, find_all, wait_until, kill_browser
-from faker import Faker
+from urllib.parse import urlsplit
 
-fake = Faker()
-class RegisterPage():
+from helium import S, click, get_driver, go_to, wait_until, write
+
+
+class RegisterPage:
     def __init__(self):
-        self.url ="https://demo.spreecommerce.org/us/en/account/register"
-         
-    def open_url(self):
+        self.url = os.getenv("BASE_URL", "http://localhost:3001/us/en").rstrip("/") + "/account/register"
+        self.timeout = int(os.getenv("WAIT_TIMEOUT", "30"))
+
+    def open_registration(self):
         go_to(self.url)
-      
-    #def open_Signup_page(self):
-           #click("Use email") 
-        
-    def register_random_user(self):
-        #Signup Logic
-        first_name = fake.first_name()
-        last_name =fake.last_name()
-        #With @gmail.com
-        email = os.getenv("TEST_USER_EMAIL")
-        password = os.getenv("TEST_USER_PASSWORD")
-        write(first_name, into ="First name")
-        write(last_name, into = "Last name")
-        write(email, into = "Email")
-        write(password, into = "password")
-        write(password, into = "Confirm password")
-        click("I agree to the Privacy Policy and Terms of Service")
+        wait_until(S("#firstName").exists, timeout_secs=self.timeout)
+
+    def register(self, customer, confirmation=None, accept_terms=True):
+        write(customer.first_name, into="First name")
+        write(customer.last_name, into="Last name")
+        write(customer.email, into="Email")
+        write(customer.password, into=S("#password"))
+        write(customer.password if confirmation is None else confirmation, into=S("#passwordConfirmation"))
+        if accept_terms:
+            click(S("#policy-consent"))
         click("Create Account")
-    
-    def get_confirmation_message(self):
-        message_locator = Text("Account Overview")
-        wait_until(message_locator.exists, timeout_secs=10)
-        actual_message = message_locator.web_element.text
-        return actual_message
-        
-        
-        
-    
+
+    def error_message(self):
+        error = S("[role='alert']")
+        wait_until(error.exists, timeout_secs=self.timeout)
+        return error.web_element.text.strip()
+
+    def policies_accepted(self):
+        return S("#policy-consent").web_element.get_attribute("data-state") == "checked"
+
+    def current_path(self):
+        return urlsplit(get_driver().current_url).path

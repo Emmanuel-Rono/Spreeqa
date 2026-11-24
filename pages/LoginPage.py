@@ -1,41 +1,35 @@
 import os
+from urllib.parse import urlsplit
 
-from helium import go_to, start_chrome, write, click, Text, S, find_all, wait_until, kill_browser
-from faker import Faker
+from helium import S, Text, click, get_driver, go_to, wait_until, write
 
-#login_page code
 
-fake = Faker()
-
-class LoginPage():
+class LoginPage:
     def __init__(self):
-        self.url = "https://demo.spreecommerce.org/us/en/account"
-                
+        self.url = os.getenv("BASE_URL", "http://localhost:3001/us/en").rstrip("/") + "/account"
+        self.timeout = int(os.getenv("WAIT_TIMEOUT", "30"))
+
     def open_login_page(self):
         go_to(self.url)
-    
-    def enter_login_details(self):
-        #Login logic
-        username=os.getenv("TEST_USER_EMAIL")
-        password = os.getenv("TEST_USER_PASSWORD")
-        
-        #Write the username and password into the respective fields
-        write(username, into="Email")
-        write(password, into="Password")
-        click("Sign in")
-        
-    def check_login_success(self):
-        message_locator = Text("Account Overview")
-        wait_until(message_locator.exists, timeout_secs=10)
-        actual_message = message_locator.web_element.text
-        return actual_message
-        
-    def signout(self):
-        click("Sign Out")
-        
-    def check_signout_success(self):
-        message_locator = Text("Sign in to access your account and order history.")
-        wait_until(message_locator.exists, timeout_secs=10)
-        actual_message = message_locator.web_element.text
-        return actual_message
-        
+        wait_until(S("#email").exists, timeout_secs=self.timeout)
+
+    def open_order_history_as_guest(self):
+        go_to(self.url + "/orders")
+        wait_until(S("#email").exists, timeout_secs=self.timeout)
+
+    def login(self, email, password):
+        write(email, into="Email")
+        write(password, into=S("#password"))
+        click("Sign In")
+
+    def error_message(self):
+        error = S("[role='alert']")
+        wait_until(error.exists, timeout_secs=self.timeout)
+        return error.web_element.text.strip()
+
+    def is_signed_out(self):
+        wait_until(S("#email").exists, timeout_secs=self.timeout)
+        return not Text("Account Overview").exists()
+
+    def current_path(self):
+        return urlsplit(get_driver().current_url).path
