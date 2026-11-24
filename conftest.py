@@ -58,9 +58,9 @@ def browser(request, monkeypatch):
         if any(getattr(request.node, "report_" + phase, None) is not None and
                getattr(request.node, "report_" + phase).failed for phase in ("setup", "call")):
             directory = Path("reports/failures")
-            directory.mkdir(parents=True, exist_ok=True)
             name = request.node.name + "-" + hashlib.sha256(request.node.nodeid.encode()).hexdigest()[:8]
             try:
+                directory.mkdir(parents=True, exist_ok=True)
                 driver.execute_script("document.querySelectorAll('input[type=password]').forEach(e => e.style.visibility='hidden')")
                 driver.save_screenshot(str(directory / (name + ".png")))
                 url = urlsplit(driver.current_url)

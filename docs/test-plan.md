@@ -1,7 +1,6 @@
 # Test coverage
 
-These are implemented scenarios, not a claim that all have passed on the local store.
-Check the latest run reports for results. Tests target English labels and USD prices.
+These are implemented scenarios,Check the latest run reports for results. Tests target English labels and USD prices.
 
 | Area | Scenario | Main assertions |
 | --- | --- | --- |
@@ -63,11 +62,12 @@ its upstream E2E helpers. Cart, search, checkout and payment still need live ver
 
 ## Validation on 24 November 2026
 
-- Before the setup simplification, 6 Helium account tests passed in 117.19 seconds
-  (`reports/standalone-accounts.xml`, local and gitignored). This is historical evidence.
-- After the setup simplification: 19 helper checks passed; all 36 cases collect.
-- Existing-account browser tests require the two configured test customers and
-  have not yet been verified with this setup.
-- Cart, search, checkout and Stripe purchase have not been validated against a
-  configured, seeded store. The last sample-data attempt required an admin account.
-- Workflow YAML parses successfully. These changes have not been run on GitHub.
+- Helper checks: 19 passed. All 36 tests collect successfully.
+- Updated signup, password mismatch, policy consent, and guest-history checks:
+  4 passed in 53.89 seconds (`reports/explicit-account-steps.xml`).
+- Existing-customer login failed: the storefront displayed `Invalid email or password`
+  for the configured credentials (`reports/existing-customer-login.xml`).
+  Configure an existing customer on the local store.
+- The separate empty-history account and product slug are not configured yet.
+  Cart, search, checkout, and payment remain unverified with this setup.
+- These changes have not been run on GitHub Actions.
